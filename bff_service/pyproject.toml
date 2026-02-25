@@ -1,0 +1,5 @@
+[project]
+name = "bff-service"
+version = "0.1.0"
+description = "Backend for Frontend Service"
+dependencies = ["fastapi>=0.100.0", "uvicorn[standard]>=0.22.0"]
