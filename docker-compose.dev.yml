@@ -13,18 +13,19 @@ services:
   proxy_service:
     volumes:
       - ./proxy_service:/app
+      - /app/.venv # preserve the virtual environment built in the image
     command: >
       uvicorn main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app
     environment:
       PYTHONDONTWRITEBYTECODE: "1"
       PYTHONUNBUFFERED: "1"
 
-  # watchmedo auto-restarts the worker whenever a .py file changes.
   analytics_worker:
     volumes:
       - ./analytics_worker:/app
+      - /app/.venv
     command: >
-      watchmedo auto-restart --directory=/app --pattern="*.py" --recursive -- python -u main.py
+      sh -c "pip install watchdog && watchmedo auto-restart --directory=/app --pattern='*.py' --recursive -- python -u main.py"
     environment:
       PYTHONDONTWRITEBYTECODE: "1"
       PYTHONUNBUFFERED: "1"
@@ -32,6 +33,7 @@ services:
   bff_service:
     volumes:
       - ./bff_service:/app
+      - /app/.venv
     command: >
       uvicorn main:app --host 0.0.0.0 --port 8001 --reload --reload-dir /app
     environment:
