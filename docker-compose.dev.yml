@@ -1,0 +1,60 @@
+# docker-compose.dev.yml
+# Extends docker-compose.yml with developer-friendly overrides.
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+# Or simply:
+#   just dev
+
+version: '3.8'
+
+services:
+
+  # Hot-reload via uvicorn --reload; source code mounted from host.
+  proxy_service:
+    volumes:
+      - ./proxy_service:/app
+    command: >
+      uvicorn main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+
+  # watchmedo auto-restarts the worker whenever a .py file changes.
+  analytics_worker:
+    volumes:
+      - ./analytics_worker:/app
+    command: >
+      watchmedo auto-restart --directory=/app --pattern="*.py" --recursive -- python -u main.py
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+
+  bff_service:
+    volumes:
+      - ./bff_service:/app
+    command: >
+      uvicorn main:app --host 0.0.0.0 --port 8001 --reload --reload-dir /app
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+
+  # Vite dev server with HMR; node_modules kept inside the container.
+  frontend:
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # anonymous volume — preserves container's node_modules
+    command: npm run dev -- --host 0.0.0.0 --port 3000
+
+  # Extra port 9000 (native TCP) exposed for tools like DBeaver / clickhouse-client.
+  analytics_db:
+    environment:
+      # Allow password-less connections from local tooling during dev
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+
+  # Port already exposed in base compose; add RedisInsight sidecar for GUI.
+  redis_insight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - "5540:5540"
+    depends_on:
+      - redis
