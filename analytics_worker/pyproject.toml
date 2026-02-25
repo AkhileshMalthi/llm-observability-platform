@@ -1,0 +1,5 @@
+[project]
+name = "analytics-worker"
+version = "0.1.0"
+description = "Analytics Worker for processing LLM logs"
+dependencies = ["redis>=5.0.0", "clickhouse-connect>=0.7.0", "tiktoken>=0.6.0"]
