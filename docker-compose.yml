@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  proxy_service:
+    build: ./proxy_service
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  analytics_worker:
+    build: ./analytics_worker
+    env_file:
+      - ./.env
+    depends_on:
+      redis:
+        condition: service_healthy
+      analytics_db:
+        condition: service_healthy
+
+  bff_service: # Backend for frontend
+    build: ./bff_service
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./.env
+    depends_on:
+      analytics_db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - bff_service
+
+  analytics_db: # ClickHouse
+    image: clickhouse/clickhouse-server
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - ./clickhouse/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  analytics_data:
