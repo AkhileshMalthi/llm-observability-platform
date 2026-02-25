@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+  proxy_service:
+    volumes:
+      - .:/workspaces/llm-observability-platform:cached
+    command: sleep infinity

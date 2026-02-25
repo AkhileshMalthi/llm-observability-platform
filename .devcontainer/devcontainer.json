@@ -1,0 +1,21 @@
+{
+    "name": "LLM Ops Platform Dev",
+    "dockerComposeFile": [
+        "../docker-compose.yml",
+        "docker-compose.dev.yml"
+    ],
+    "service": "proxy_service", // We'll code "inside" the proxy service
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "runServices": ["proxy_service", "redis", "analytics_db"], // Only start services with valid builds
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-azuretools.vscode-docker",
+                "mtxr.sqltools",
+                "mtxr.sqltools-driver-clickhouse" 
+            ]
+        }
+    },
+    "remoteUser": "root"
+}
