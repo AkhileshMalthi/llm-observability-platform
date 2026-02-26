@@ -2,4 +2,5 @@
 name = "bff-service"
 version = "0.1.0"
 description = "Backend for Frontend Service"
+requires-python = ">=3.12"
 dependencies = ["fastapi>=0.100.0", "uvicorn[standard]>=0.22.0"]
