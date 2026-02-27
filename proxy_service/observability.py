@@ -3,10 +3,13 @@ import time
 from datetime import datetime, timezone
 import asyncio
 from typing import Dict, Any
+import logging
 
 import redis.asyncio as redis
 from models import LogEvent, LogRequestPayload, LogResponsePayload, LogGuardrails, ChatCompletionRequest
 from redis_client import publish_log
+
+logger = logging.getLogger(__name__)
 
 class ObservabilityService:
     @staticmethod
@@ -60,4 +63,5 @@ class ObservabilityService:
         )
         
         # Fire and forget publishing
+        logger.info(f"Publishing observability telemetry to Redis for trace_id: {trace_id}")
         asyncio.create_task(publish_log(redis_conn, log_event.model_dump()))

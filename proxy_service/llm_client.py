@@ -2,6 +2,9 @@ import httpx
 from fastapi import HTTPException
 from models import ChatCompletionRequest
 from config import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 class LLMClient:
     def __init__(self):
@@ -25,8 +28,7 @@ class LLMClient:
         }
         
         try:
-            import json
-            print("OUTBOUND PAYLOAD:", json.dumps(payload), flush=True)
+            logger.info(f"Forwarding prompt to upstream LLM model: {payload.get('model')}")
             async with httpx.AsyncClient() as client:
                 res = await client.post(
                     f"{self.base_url}/chat/completions",
@@ -39,5 +41,5 @@ class LLMClient:
         except httpx.HTTPError as e:
             error_details = getattr(e, "response", None)
             if error_details:
-                print("UPSTREAM LLM REJECTED:", error_details.text, flush=True)
+                logger.error(f"Upstream LLM rejected payload. Reason: {error_details.text}")
             raise HTTPException(status_code=502, detail=f"Error communicating with upstream LLM: {str(e)}")

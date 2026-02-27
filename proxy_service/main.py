@@ -7,9 +7,16 @@ from guardrails import GuardrailPipeline, PIIGuardrail, InjectionGuardrail
 from redis_client import init_redis, close_redis
 from routes import router
 from config import settings
+from logger import setup_logging
+import logging
+
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Initialize uniform logging configuration
+    setup_logging()
+    logger.info("Initializing LLM Proxy Service Dependencies...")
     # Base dependencies
     analyzer = AnalyzerEngine()
     anonymizer = AnonymizerEngine()
@@ -28,6 +35,7 @@ async def lifespan(app: FastAPI):
     await close_redis()
 
 app = FastAPI(title="LLM Proxy Service", lifespan=lifespan)
+logger.info("LLM Proxy Service API initialized.")
 
 @app.get("/health")
 def health():

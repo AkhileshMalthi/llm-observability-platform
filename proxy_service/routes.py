@@ -5,8 +5,11 @@ import redis.asyncio as redis
 from models import ChatCompletionRequest
 from llm_client import LLMClient
 from observability import ObservabilityService
+import logging
 from redis_client import get_redis
 from guardrails import GuardrailPipeline
+
+logger = logging.getLogger(__name__)
 
 # Dependency mapping
 def get_guardrail_pipeline(request: Request) -> GuardrailPipeline:
@@ -23,6 +26,7 @@ async def chat_completions(
     pipeline: GuardrailPipeline = Depends(get_guardrail_pipeline)
 ):
     trace_id = ObservabilityService.generate_trace_id()
+    logger.info(f"Received completion request. Trace ID: {trace_id}")
     start_time = time.time()
     response.headers["X-Trace-ID"] = trace_id
     
