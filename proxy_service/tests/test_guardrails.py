@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, ANY
 from guardrails import (
     InjectionGuardrail,
     PIIGuardrail,
@@ -43,7 +43,7 @@ async def test_pii_guardrail_clean_prompt(mock_analyzer, mock_anonymizer, clean_
     assert result.triggered is False
     assert result.should_block is False
     assert result.prompt == clean_prompt
-    mock_analyzer.analyze.assert_called_once_with(text=clean_prompt, language="en")
+    mock_analyzer.analyze.assert_called_once_with(text=clean_prompt, language="en", entities=ANY)
     mock_anonymizer.anonymize.assert_not_called()
 
 @pytest.mark.asyncio

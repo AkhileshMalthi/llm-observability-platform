@@ -16,16 +16,20 @@ COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev
 
+# Pre-download required Spacy model using uv pip directly (bypassing pip dependency)
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.7.1/en_core_web_lg-3.7.1-py3-none-any.whl
+
 # Stage 2: Runtime
 FROM python:3.12-slim-bookworm
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN useradd -m appuser
 
-COPY --from=builder /app /app
+COPY --chown=appuser:appuser --from=builder /app /app
 ENV PATH="/app/.venv/bin:$PATH"
 
-RUN useradd -m appuser && chown -R appuser /app
 USER appuser
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

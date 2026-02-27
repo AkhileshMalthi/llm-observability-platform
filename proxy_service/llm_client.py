@@ -12,7 +12,8 @@ class LLMClient:
         """
         Calls the downstream LLM using the provided request context and processed prompt.
         """
-        payload = request.model_dump()
+        # Ensure nested objects (like Message objects in the messages list) are fully serialized to dicts
+        payload = request.model_dump(mode='json', exclude_unset=True)
         
         # Inject the guardrail-processed prompt into the last message
         if payload.get("messages"):
@@ -24,6 +25,8 @@ class LLMClient:
         }
         
         try:
+            import json
+            print("OUTBOUND PAYLOAD:", json.dumps(payload), flush=True)
             async with httpx.AsyncClient() as client:
                 res = await client.post(
                     f"{self.base_url}/chat/completions",
@@ -34,4 +37,7 @@ class LLMClient:
                 res.raise_for_status()
                 return res.json()
         except httpx.HTTPError as e:
+            error_details = getattr(e, "response", None)
+            if error_details:
+                print("UPSTREAM LLM REJECTED:", error_details.text, flush=True)
             raise HTTPException(status_code=502, detail=f"Error communicating with upstream LLM: {str(e)}")
