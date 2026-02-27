@@ -1,31 +1,22 @@
-# Stage 1: Builder
-FROM python:3.12-slim-bookworm AS builder
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+FROM python:3.12.2-slim-bookworm
 
-ENV UV_COMPILE_BYTECODE=1
-ENV UV_LINK_MODE=copy
 WORKDIR /app
 
+# Install system dependencies if required, update CA certs
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates && rm -rf /var/lib/apt/lists/*
+
+# Install uv for fast dependency resolution
+COPY --from=ghcr.io/astral-sh/uv:0.3.0 /uv /bin/uv
+
+# Copy project files
 COPY pyproject.toml uv.lock ./
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    uv sync --frozen --no-install-project --no-dev
+COPY ./ ./
 
-COPY . .
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev
+# Install dependencies directly into the system python using uv
+RUN uv pip install --system --no-cache -r pyproject.toml
 
-# Stage 2: Runtime
-FROM python:3.12-slim-bookworm
-WORKDIR /app
+# Expose the API port
+EXPOSE 8001
 
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /app /app
-ENV PATH="/app/.venv/bin:$PATH"
-
-RUN useradd -m appuser && chown -R appuser /app
-USER appuser
-
+# Start the uvicorn server
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
