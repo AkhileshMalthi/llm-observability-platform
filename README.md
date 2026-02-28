@@ -1,5 +1,7 @@
 # LLM Observability Platform
 
+![Architecture Flow Diagram](./ARCHITECTURE.png)
+
 A comprehensive, multi-service platform to monitor and secure LLM applications in production. Built with a focus on mitigating prompt injections, detecting PII leakage, calculating token costs, and providing high-performance observability insights.
 
 ## Project Architecture
