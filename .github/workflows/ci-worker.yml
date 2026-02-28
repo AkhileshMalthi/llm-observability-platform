@@ -27,6 +27,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create .env file
+        run: cp .env.example .env
+
       - name: Run Integration Tests
         run: |
           docker compose up -d analytics_worker redis analytics_db
