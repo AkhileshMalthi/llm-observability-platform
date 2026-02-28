@@ -85,8 +85,6 @@ class ClickHouseDb:
         result = self.client.query(query)
         return int(result.result_rows[0][0])
 
-# Global instance for FastAPI dependency injection
-db_client = ClickHouseDb()
-
 def get_db() -> ClickHouseDb:
-    return db_client
+    # clickhouse_connect requires a separate client instance per concurrent thread/request
+    return ClickHouseDb()

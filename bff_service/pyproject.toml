@@ -8,6 +8,23 @@ dependencies = [
     "fastapi>=0.100.0",
     "httpx>=0.28.1",
     "pydantic>=2.12.5",
-    "pytest>=9.0.2",
     "uvicorn[standard]>=0.22.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = [".", ".."]
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s | %(levelname)s - %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+markers = [
+    "unit: marks tests as unit tests (deselect with '-m \"not unit\"')",
+    "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",
+    "e2e: marks tests as end-to-end (deselect with '-m \"not e2e\"')"
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-sugar>=1.1.1",
 ]
