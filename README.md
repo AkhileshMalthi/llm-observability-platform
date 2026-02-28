@@ -1,7 +1,5 @@
 # LLM Observability Platform
 
-![Architecture Flow Diagram](./ARCHITECTURE.png)
-
 A comprehensive, multi-service platform to monitor and secure LLM applications in production. Built with a focus on mitigating prompt injections, detecting PII leakage, calculating token costs, and providing high-performance observability insights.
 
 ## Project Architecture
@@ -14,6 +12,10 @@ The platform follows a microservices architecture to ensure scalability and sepa
 - **Frontend Dashboard**: A React/Vite-based modern UI that provides visualizations of metrics (Latency, Costs, Requests) and displays traces.
 - **ClickHouse**: The core analytics database for high-performance log querying.
 - **Redis**: Serves as an asynchronous message queue (Pub/Sub) between the Proxy Service and the Analytics Worker.
+
+<p align="center">
+   <img src="./ARCHITECTURE.png" alt="Architecture Flow Diagram" width="500">
+</p>
 
 ## Prerequisites
 
