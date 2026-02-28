@@ -26,8 +26,8 @@ export default function TracesTable({ traces }) {
                     {traces.map((trace) => (
                         <tr key={trace.traceId} data-testid="trace-row">
                             <td data-testid="trace-id-cell">
-                                <span style={{ fontFamily: 'monospace', color: 'var(--accent-primary)' }}>
-                                    {trace.traceId.split('-')[0]}...
+                                <span style={{ fontFamily: 'monospace', color: 'var(--accent-primary)' }} title={trace.traceId}>
+                                    {trace.traceId}
                                 </span>
                             </td>
                             <td>{new Date(trace.timestamp).toLocaleString()}</td>
