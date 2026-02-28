@@ -1,16 +1,19 @@
-# React + Vite
+# LLM Observability Frontend Board
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The frontend provides the main User Interface for the entire LLM Observability Platform. It displays a real-time comprehensive view of the LLM application's health, metrics, and individual proxy traces.
 
-Currently, two official plugins are available:
+## Core Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Metrics Displays:** Visualizes key performance and cost metrics fetched directly from the `bff_service` (Backend-For-Frontend).
+- **Traces Table:** Lists a chronological breakdown of the traces passing through the proxy. Provides insight into original vs. redacted prompts, cost, tokens, and trace IDs.
 
-## React Compiler
+## Tech Stack
+- Constructed with modern **React** tools.
+- Uses **Vite** for rapid bundling and hot module replacement. 
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Development
 
-## Expanding the ESLint configuration
+During unified platform deployment, this interface relies directly on the `bff_service` API.
+Available on port `3000` (`http://localhost:3000`).
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+To run the environment, see the initialization instructions outlined in the root `.README.md`.
