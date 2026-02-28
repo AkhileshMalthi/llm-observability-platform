@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - 'proxy_service/**'
+      - '.github/workflows/ci-proxy.yml'
   pull_request:
     paths:
       - 'proxy_service/**'
+      - '.github/workflows/ci-proxy.yml'
   workflow_dispatch:
 
 jobs:

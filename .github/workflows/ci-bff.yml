@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - 'bff_service/**'
+      - '.github/workflows/ci-bff.yml'
   pull_request:
     paths:
       - 'bff_service/**'
+      - '.github/workflows/ci-bff.yml'
   workflow_dispatch:
 
 jobs:

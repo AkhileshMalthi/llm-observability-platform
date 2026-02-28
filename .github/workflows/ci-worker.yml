@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - 'analytics_worker/**'
+      - '.github/workflows/ci-worker.yml'
   pull_request:
     paths:
       - 'analytics_worker/**'
+      - '.github/workflows/ci-worker.yml'
   workflow_dispatch:
 
 jobs:
