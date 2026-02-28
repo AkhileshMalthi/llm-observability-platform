@@ -1,6 +1,3 @@
-#!/bin/bash
-# scripts/verify_setup.sh
-# Verifies the LLM Observability Platform setup and core requirements
 
 set -e
 
