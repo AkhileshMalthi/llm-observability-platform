@@ -1,0 +1,37 @@
+name: BFF Service CI
+
+on:
+  push:
+    paths:
+      - 'bff_service/**'
+  pull_request:
+    paths:
+      - 'bff_service/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Build Docker Image
+        run: docker compose build bff_service
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Integration Tests
+        run: |
+          docker compose up -d bff_service analytics_db
+          sleep 15
+          echo "Checking BFF Health..."
+          curl -s -f http://localhost:8001/health | grep -q 'ok' || exit 1
+          echo "Testing summary endpoint..."
+          curl -s -f http://localhost:8001/api/metrics/summary || exit 1

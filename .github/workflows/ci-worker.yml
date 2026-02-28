@@ -1,0 +1,35 @@
+name: Analytics Worker CI
+
+on:
+  push:
+    paths:
+      - 'analytics_worker/**'
+  pull_request:
+    paths:
+      - 'analytics_worker/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Build Docker Image
+        run: docker compose build analytics_worker
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Integration Tests
+        run: |
+          docker compose up -d analytics_worker redis analytics_db
+          sleep 15
+          echo "Checking if Worker container is running..."
+          docker inspect -f '{{.State.Running}}' llm-observability-platform-analytics_worker-1 | grep -q 'true' || exit 1
