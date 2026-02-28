@@ -1,19 +1,32 @@
-FROM python:3.12-slim
+# Stage 1: Builder
+FROM python:3.12-slim-bookworm AS builder
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
 WORKDIR /app
 
-# Install system dependencies if required, update CA certs
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates && rm -rf /var/lib/apt/lists/*
-
-# Install uv for fast dependency resolution
-COPY --from=ghcr.io/astral-sh/uv:0.3.0 /uv /bin/uv
-
-# Copy project files
 COPY pyproject.toml uv.lock ./
-COPY ./ ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    uv sync --frozen --no-install-project --no-dev
 
-# Install dependencies directly into the system python using uv
-RUN uv pip install --system --no-cache -r pyproject.toml
+COPY . .
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
 
-# Start the worker daemon
+# Stage 2: Runtime
+FROM python:3.12-slim-bookworm
+WORKDIR /app
+
+# Install curl for the health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN useradd -m appuser
+
+COPY --chown=appuser:appuser --from=builder /app /app
+ENV PATH="/app/.venv/bin:$PATH"
+
+USER appuser
+
 CMD ["python", "main.py"]
